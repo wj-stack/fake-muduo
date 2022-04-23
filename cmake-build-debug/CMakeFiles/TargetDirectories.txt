@@ -1,0 +1,3 @@
+/tmp/tmp.KaQSS8zTuB/cmake-build-debug/CMakeFiles/main.dir
+/tmp/tmp.KaQSS8zTuB/cmake-build-debug/CMakeFiles/edit_cache.dir
+/tmp/tmp.KaQSS8zTuB/cmake-build-debug/CMakeFiles/rebuild_cache.dir
