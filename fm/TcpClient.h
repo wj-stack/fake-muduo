@@ -26,6 +26,12 @@ public:
 
     void connect();
 
+
+    bool isConnected() const {
+        if(conn_)return conn_->isConnected();
+        return false;
+    }
+
 private:
     void handelConnect(int fd);
     EventLoop *loop;
@@ -36,6 +42,7 @@ private:
     TcpConnection::WriteCallBack writeCallBack;
     TcpConnection::ErrorCallBack errorCallBack;
     std::shared_ptr<Connector> connector;
+    std::shared_ptr<TcpConnection> conn_;
 //    std::shared_ptr<Channel> channel;
     static int s_id;
 };

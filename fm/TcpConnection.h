@@ -45,6 +45,7 @@ public:
 
     void shutdown();
 
+
 public:
     void setConnectCallBack(const ConnectCallBack &connectCallBack);
 

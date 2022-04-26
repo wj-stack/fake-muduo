@@ -59,20 +59,26 @@ void TcpConnection::ReadHandel(const TcpConnection::ptr & ptr) {
 
 
 void TcpConnection::CloseHandel(const TcpConnection::ptr & ptr) {
+
+    setState(CLOSE);
     ptr->setState(TcpConnection::CLOSE);
     ptr->getChannel()->disableAll();
     ptr->getChannel()->remove();
     if (connectCallBack)connectCallBack(ptr); // 处理断开连接
     if (closeCallBack)closeCallBack(ptr);
     ::close(ptr->getFd());
+    SPDLOG_INFO("close fd: {}",ptr->getFd());
+
 }
 
 void TcpConnection::ErrorHandel(const TcpConnection::ptr & ptr) {
+    setState(ERROR);
     ptr->setState(TcpConnection::ERROR);
     ptr->getChannel()->disableAll();
     ptr->getChannel()->remove();
     if (connectCallBack)connectCallBack(ptr); // 处理断开连接
     if (errorCallBack)errorCallBack(ptr);
+    SPDLOG_INFO("TcpConnection::ErrorHandel fd: {}",ptr->getFd());
     ::close(ptr->getFd());
 }
 
@@ -103,9 +109,9 @@ void TcpConnection::setErrorCallBack(const TcpConnection::ErrorCallBack & callBa
 }
 
 void TcpConnection::sendInLoop(const std::string &message) {
-    spdlog::info("sendInLoop");
+//    spdlog::info("sendInLoop");
     size_t n = ::write(fd, message.c_str(), message.size());
-    spdlog::info("msg:{}  n:{}",message,n);
+//    spdlog::info("msg:{}  n:{}",message,n);
     if (n < message.length())
     {
         // 说明写入不足，需要将剩下的放在buffer里面
@@ -134,12 +140,17 @@ void TcpConnection::shutdown() {
 }
 
 void TcpConnection::shutdownWriteInLoop() {
+    setState(CLOSE);
     if (channel.isWriting())
     {
         Socket::shutdownWrite(channel.fd());
     }
+    SPDLOG_INFO("closeCallBack! in shutdownWriteInLoop fd:{} ",fd);
     channel.disableAll();
-    channel.remove();
-    ::close(channel.fd());
+    ::close(fd);
     if (closeCallBack)closeCallBack(shared_from_this());
+
+//    ::shutdown(fd,SHUT_RDWR);
+
+
 }

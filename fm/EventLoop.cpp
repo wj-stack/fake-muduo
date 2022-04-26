@@ -27,6 +27,7 @@ EventLoop::~EventLoop() {
 }
 
 void EventLoop::loop() {
+    spdlog::info("looping_: {}" , looping_);
     assert(!looping_);
     assert(isInLoopThread());
     looping_ = true;

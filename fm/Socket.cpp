@@ -12,6 +12,7 @@
 int Socket::createSocket() {
     int fd = ::socket(AF_INET,
                       SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, IPPROTO_TCP);
+
     if (fd < 0) {
         SPDLOG_INFO("create socket error");
     }

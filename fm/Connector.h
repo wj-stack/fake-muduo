@@ -20,9 +20,7 @@ public:
 
     bool connect();
     void start();
-    void restart();
     void stop();
-
     void setConnectCallBack(const ConnectCallBack & callBack);
 
 private:
@@ -31,6 +29,7 @@ private:
     void handleWrite();
     void startInLoop();
 
+    int fd_;
     EventLoop *loop;
     InetAddress *inetAddress;
     ConnectCallBack connectCallBack;

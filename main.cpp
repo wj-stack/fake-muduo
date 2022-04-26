@@ -12,10 +12,10 @@ std::atomic_int a;
 
 void newConnect(const TcpConnection::ptr &conn) {
     if (conn->isConnected()) {
-        spdlog::info("new connect");
+        spdlog::info("new connect fd:{}", conn->getFd());
         a++;
     }else{
-        spdlog::info("dis connect");
+        spdlog::info("dis connect fd:{}", conn->getFd());
         a--;
     }
 }

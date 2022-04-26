@@ -1,7 +1,3 @@
-//
-// Created by Administrator on 2022/4/26.
-//
-
 #include "Connector.h"
 #include <sys/socket.h>
 #include <unistd.h>
@@ -14,7 +10,7 @@ void Connector::start() {
 }
 
 void Connector::stop() {
-
+    state_ = kDisconnected;
 }
 
 void Connector::setConnectCallBack(const Connector::ConnectCallBack &callBack) {
@@ -22,7 +18,13 @@ void Connector::setConnectCallBack(const Connector::ConnectCallBack &callBack) {
 }
 
 bool Connector::connect() {
-    int fd = Socket::createSocket();
+    auto &fd = fd_;
+    if (fd) // 防止重用
+    {
+        ::close(fd);
+        fd = 0;
+    }
+    fd = Socket::createSocket();
 //    spdlog::info(" Connector::connect fd:{}", fd);
     int ret = ::connect(fd, inetAddress->getSocketAddress(), static_cast<socklen_t>(sizeof(struct sockaddr_in6)));
     int savedErrno = (ret == 0) ? 0 : errno;
@@ -66,7 +68,11 @@ bool Connector::connect() {
 
 void Connector::connecting(int fd) {
     state_ = kConnecting;
-//    SPDLOG_INFO("Connector::connecting kConnecting");
+    if (channel)
+    {
+        channel->disableAll();
+        channel->remove();
+    }
     channel = std::make_shared<Channel>(loop, fd);
     channel->setWriteCallBack(std::bind(&Connector::handleWrite, this));
     channel->enableWriting();
@@ -112,8 +118,7 @@ void Connector::retry(int sockfd)    {
 
 void Connector::startInLoop(){
     assert(loop->isInLoopThread());
-    assert(state_ == kDisconnected);
-//    SPDLOG_INFO("Connector::startInLoop");
+    state_ = kDisconnected;
     connect();
 }
 

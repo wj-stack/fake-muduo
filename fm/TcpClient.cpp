@@ -24,7 +24,7 @@ void TcpClient::setWriteCallBack(const TcpConnection::WriteCallBack &callBack) {
 }
 
 void TcpClient::setErrorCallBack(const TcpConnection::ErrorCallBack &callBack) {
-    TcpClient::errorCallBack = callBack;
+    errorCallBack = callBack;
 }
 
 TcpClient::TcpClient(EventLoop *l, InetAddress *i) : loop(l), inetAddress(i) ,connector(std::make_shared<Connector>(loop,inetAddress)){
@@ -40,6 +40,7 @@ void TcpClient::handelConnect(int fd) {
 //    SPDLOG_INFO("fd: ");
 //    SPDLOG_INFO(fd);
     auto ptr = std::make_shared<TcpConnection>(loop, fd, ++s_id);
+    conn_ = ptr;
     Channel &channel = *ptr->getChannel();
     channel.enableReading();
     channel.setReadCallBack(std::bind(&TcpConnection::ReadHandel, ptr.get(), ptr)); // 先转发给readHandel然后转发给客户
