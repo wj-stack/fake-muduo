@@ -9,7 +9,7 @@
 #include "EventLoop.h"
 #include "Buffer.h"
 #include "IgnoreSigPipe.h"
-class TcpConnection : std::enable_shared_from_this<TcpConnection> {
+class TcpConnection : public std::enable_shared_from_this<TcpConnection> {
 public:
 
     using ptr = std::shared_ptr<TcpConnection>;
@@ -43,6 +43,8 @@ public:
 
     bool isConnected() const { return state == CONNECTED; }
 
+    void shutdown();
+
 public:
     void setConnectCallBack(const ConnectCallBack &connectCallBack);
 
@@ -64,6 +66,7 @@ public:
 
     void CloseHandel(const TcpConnection::ptr &);
 
+    void shutdownWriteInLoop();
 
 private:
     Buffer inputBuffer;

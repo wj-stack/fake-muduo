@@ -26,7 +26,7 @@ public:
 
     ~TimerQueue();
 
-    void addTimer(const std::function<void()> &cb, uint64_t delay, bool recycle);
+    int addTimer(const std::function<void()> &cb, uint64_t delay, bool recycle);
 
     void cancel(int id);
 

@@ -6,17 +6,32 @@
 #include "fm/TcpConnection.h"
 #include "fm/EventLoopThread.h"
 #include <iostream>
+#include "fm/TcpClient.h"
+
+
 EventLoop eventLoop;
 
 std::atomic_int a;
+std::thread t;
+void func(const TcpConnection::ptr &conn)
+{
+    while (conn->isConnected()) {
+        spdlog::info("conn->isConnected");
+        std::string  s;
+        std::cin >>  s;
+        conn->Send(s);
+    }
+}
 
 void newConnect(const TcpConnection::ptr &conn) {
+    spdlog::info("new connect");
     if (conn->isConnected()) {
-        spdlog::info("new connect");
         a++;
+//        conn->Send("hello");
+        t = std::thread (func,conn);
     }else{
-        spdlog::info("dis connect");
         a--;
+        spdlog::info("dis connect");
     }
 }
 
@@ -24,7 +39,9 @@ void newRead(const TcpConnection::ptr &conn,Buffer& buffer , int n) {
     std::string s(buffer.begin() + buffer.getReadIndex(),n);
 
     std::cout << "data:" << s << " n : "<< n  << std::endl;
-    conn->Send(s);
+//    conn->Send(s);
+
+//    conn->Send(std::string('a',1024 * 1024 * 64));
     buffer.retrieve(n);
 }
 
@@ -42,13 +59,13 @@ int main()
 
     spdlog::set_pattern("[%H:%M:%S %z] [%n] [%^---%L---%$] [%@] [thread %t] %v");
 
-    InetAddress inetAddress("127.0.0.1",9991, false);
-    TcpServer tcpServer(&eventLoop, &inetAddress);
-    tcpServer.setConnectCallBack(newConnect);
-    tcpServer.setReadCallBack(newRead);
-    tcpServer.setErrorCallBack(Error);
-    tcpServer.setCloseCallBack(Close);
-//    tcpServer.setThreadNums(4);
-    tcpServer.start();
+    InetAddress inetAddress("127.0.0.1",9991);
+    TcpClient tcpClient(&eventLoop, &inetAddress);
+    tcpClient.setConnectCallBack(newConnect);
+    tcpClient.setCloseCallBack(Close);
+    tcpClient.setErrorCallBack(Error);
+    tcpClient.setReadCallBack(newRead);
+    tcpClient.connect();
+
     eventLoop.loop();
 }

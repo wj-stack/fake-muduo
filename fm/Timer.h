@@ -20,6 +20,8 @@ public:
 
     bool isRecycle() const { return recycle; }
 
+    int getId() const { return id; }
+
 private:
     static int sid;
     int id;

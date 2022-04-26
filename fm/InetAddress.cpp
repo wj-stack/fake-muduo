@@ -21,9 +21,6 @@ InetAddress::InetAddress(uint16_t port, bool loopBackOnly, bool ipv6) {
     printf("s_addr = %#x ,port : %#x\r\n", addr.sin_addr.s_addr, addr.sin_port);
 }
 
-sockaddr *InetAddress::getSocketAddress() const {
-    return (struct sockaddr *) (&addr);
-}
 
 int InetAddress::getStructSize() const {
     return sizeof(addr);
@@ -34,4 +31,19 @@ std::string InetAddress::toIp() const {
     Socket::toIp(getSocketAddress(), buf, sizeof(buf));
     return buf;
 }
+
+InetAddress::InetAddress(const std::string &ip, uint16_t portArg, bool ipv6)     {
+    if (ipv6 || strchr(ip.c_str(), ':'))
+    {
+        bzero(&addrv6, sizeof addrv6);
+        Socket::fromIpPort(ip.c_str(), portArg, (sockaddr_in*)&addrv6);
+    }
+    else
+    {
+        bzero(&addr, sizeof addr);
+        Socket::fromIpPort(ip.c_str(), portArg, &addr);
+    }
+}
+
+const sockaddr * InetAddress::getSocketAddress() const { return Socket::sockaddr_cast(&addrv6); }
 

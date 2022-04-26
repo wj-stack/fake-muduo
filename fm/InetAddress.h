@@ -11,14 +11,15 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <netinet/in.h>
-
+#include <cstring>
 class InetAddress {
 public:
     InetAddress() = default;
 
     explicit InetAddress(uint16_t port, bool loopBackOnly = true, bool ipv6 = false);
 
-    sockaddr *getSocketAddress() const;
+    explicit InetAddress(const std::string& ip, uint16_t portArg, bool ipv6 = false);
+
 
     int getStructSize() const;
 
@@ -27,6 +28,8 @@ public:
     void setSockAddrInet6(const struct sockaddr_in6 &addr6) { addrv6 = addr6; }
 
     uint16_t toPort() const { return addr.sin_port; }
+
+    const sockaddr * getSocketAddress() const;
 
 private:
     union {

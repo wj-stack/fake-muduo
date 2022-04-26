@@ -47,6 +47,8 @@ public:
 
     void remove();
 
+    bool isWriting() const { return revents_ & EVENT_WRITE; }
+
 private:
     EventLoop* loop_;
     int fd_;  // 负责的fd

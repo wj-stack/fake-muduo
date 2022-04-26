@@ -3,6 +3,7 @@
 //
 
 #include "TcpConnection.h"
+#include "Socket.h"
 #include <unistd.h>
 
 TcpConnection::TcpConnection(EventLoop *loop_, int fd_, int id_) : loop(loop_), fd(fd_), channel(loop, fd), id(id_) {
@@ -32,11 +33,11 @@ void TcpConnection::WriteHandle(const TcpConnection::ptr &ptr) {
     // 事件可写
     size_t n = ::write(fd, outputBuffer.begin() + outputBuffer.getReadIndex(), outputBuffer.getReadable());
     outputBuffer.retrieve(n);
-    spdlog::info("write date 2: {}", n);
+//    spdlog::info("write date: {}", n);
     if (outputBuffer.getReadable() == 0)
     {
         // 说明写完了 ， 取消关注写事件
-        spdlog::info("write date over");
+//        spdlog::info("write date over");
         channel.disableWriting();
         if (writeCompleteCallBack)writeCompleteCallBack(shared_from_this());
     }
@@ -102,9 +103,9 @@ void TcpConnection::setErrorCallBack(const TcpConnection::ErrorCallBack & callBa
 }
 
 void TcpConnection::sendInLoop(const std::string &message) {
+    spdlog::info("sendInLoop");
     size_t n = ::write(fd, message.c_str(), message.size());
-    spdlog::info("write: {0} date:{1}", n,message.size());
-    spdlog::info(message);
+    spdlog::info("msg:{}  n:{}",message,n);
     if (n < message.length())
     {
         // 说明写入不足，需要将剩下的放在buffer里面
@@ -126,4 +127,19 @@ void TcpConnection::setWriteCompleteCallBack(const TcpConnection::WriteCompleteC
 
 void TcpConnection::setHighWriteCallBack(const TcpConnection::HighWriteCallBack & callBack) {
     highWriteCallBack = callBack;
+}
+
+void TcpConnection::shutdown() {
+    loop->runInLoop(std::bind(&TcpConnection::shutdownWriteInLoop, this));
+}
+
+void TcpConnection::shutdownWriteInLoop() {
+    if (channel.isWriting())
+    {
+        Socket::shutdownWrite(channel.fd());
+    }
+    channel.disableAll();
+    channel.remove();
+    ::close(channel.fd());
+    if (closeCallBack)closeCallBack(shared_from_this());
 }

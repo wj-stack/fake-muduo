@@ -2,7 +2,7 @@
 // Created by wyatt on 2022/4/20.
 //
 #include "EventLoop.h"
-#include "TImerQueue.h"
+#include "TimerQueue.h"
 #include "Until.h"
 #include <sys/timerfd.h>
 #include <memory>
@@ -13,7 +13,7 @@ bool TimerQueue::TimerEvent::operator()(const std::shared_ptr<Timer> timer1, con
 }
 
 void TimerQueue::TimeOut() {
-    spdlog::info("TimerQueue::TimeOut() time out");
+//    spdlog::info("TimerQueue::TimeOut() time out");
 
     readTimerfd(); // 清除这个事件，要不然会一直重复出现 LT模式
 
@@ -40,14 +40,21 @@ TimerQueue::~TimerQueue() {
     ::close(timerfd);
 }
 
-void TimerQueue::addTimer(const std::function<void()> &cb, uint64_t delay, bool recycle) {
-    timer_set.insert(std::make_shared<Timer>(cb, delay, recycle));
+int TimerQueue::addTimer(const std::function<void()> &cb, uint64_t delay, bool recycle) {
+    auto p = std::make_shared<Timer>(cb, delay, recycle);
+    timer_set.insert(p);
     loop->runInLoop(std::bind(&Until::CreateTimer, timerfd, delay));
-    spdlog::info("addTimer() timerfd:{}",timerfd);
+//    spdlog::info("addTimer() timerfd:{}",timerfd);
+    return p->getId();
 }
 
 void TimerQueue::cancel(int id) {
-
+    for(auto it = timer_set.begin() ; it != timer_set.end() ; it++)
+    {
+        if ((*it)->getId() == id) {
+            timer_set.erase(it);
+        }
+    }
 }
 
 void TimerQueue::readTimerfd() {

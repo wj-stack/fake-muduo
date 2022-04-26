@@ -10,6 +10,7 @@
 #include "noncopyable.h"
 #include "Channel.h"
 #include "Poller.h"
+#include "TimerQueue.h"
 #include "spdlog/spdlog.h"
 class EventLoop : public noncopyable{
 public:
@@ -21,6 +22,8 @@ public:
     void runInLoop(const Channel::EventCallBack &callBack);
     void updateChannel(Channel* channel);
     void removeChannel(Channel* channel);
+    void runAt(const Channel::EventCallBack &callBack);
+    void runAfter(uint64_t delay, const Channel::EventCallBack &callBack);
 private:
     pid_t threadId_;
     bool looping_{false};
@@ -30,6 +33,7 @@ private:
     int wakeFd_;
     Channel wakeChannel_;
     std::mutex mutex_;
+    TimerQueue timerQueue;
     static int createEventFd();
 
     void wakeUp() const;

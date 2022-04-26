@@ -9,7 +9,8 @@
 
 thread_local EventLoop *t_loopInThisThread = nullptr;
 
-EventLoop::EventLoop() : threadId_(Until::GetThreadId()), wakeFd_(createEventFd()), wakeChannel_(this, wakeFd_) {
+EventLoop::EventLoop() : threadId_(Until::GetThreadId()), wakeFd_(createEventFd()), wakeChannel_(this, wakeFd_) ,
+                         timerQueue((this)) {
     spdlog::info("threadId_:{}  loop:{}", threadId_, (long)this);
     if (!t_loopInThisThread) {
         t_loopInThisThread = this;
@@ -127,4 +128,12 @@ void EventLoop::updateInLoop(Channel* channel) {
 
 void EventLoop::removeInLoop(Channel *channel) {
     poller.removeChannel(channel);
+}
+
+void EventLoop::runAfter(uint64_t delay, const Channel::EventCallBack &callBack) {
+    timerQueue.addTimer(callBack, delay, false);
+}
+
+void EventLoop::runAt(const Channel::EventCallBack &callBack) {
+    timerQueue.addTimer(callBack, 1, false);
 }
