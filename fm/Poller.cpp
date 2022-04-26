@@ -39,7 +39,7 @@ void Poller::updateChannel(Channel *channel) {
 
         channel->setIndex((int) pollfds.size());
         pollfds.emplace_back(ev);
-        spdlog::info("new channel fd:{}",channel->fd());
+//        spdlog::info("new channel fd:{}",channel->fd());
 
     } else {
         // update
@@ -54,7 +54,7 @@ void Poller::updateChannel(Channel *channel) {
         } else {
             epoll_ctl(epfd, EPOLL_CTL_MOD, ev.data.fd, &ev);
         }
-        spdlog::info("update channel fd:{}" , channel->fd() );
+//        spdlog::info("update channel fd:{}" , channel->fd() );
 
     }
 

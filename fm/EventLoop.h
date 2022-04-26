@@ -23,7 +23,7 @@ public:
     void removeChannel(Channel* channel);
 private:
     pid_t threadId_;
-    bool looping_;
+    bool looping_{false};
     Poller poller;
     bool quit_ = false;
     std::vector<Channel::EventCallBack> callbacks_;

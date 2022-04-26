@@ -64,3 +64,7 @@ void Channel::handle() {
 int Channel::fd() const {
     return fd_;
 }
+
+void Channel::remove() {
+    loop_->removeChannel(this);
+}

@@ -12,7 +12,14 @@ add_executable(main main.cpp
         fm/Channel.cpp
         fm/Poller.cpp
         fm/TimerQueue.cpp
-        fm/Timer.cpp)
+        fm/Timer.cpp
+        fm/InetAddress.cpp
+        fm/Socket.cpp
+        fm/Acceptor.cpp
+        fm/TcpServer.cpp
+        fm/TcpConnection.cpp
+        fm/Buffer.cpp
+        )
 
 target_link_libraries(main PRIVATE spdlog::spdlog)
 

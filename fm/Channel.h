@@ -39,11 +39,13 @@ public:
 
     int fd() const;
 
-    int getIndex() { return index_; }
+    int getIndex() const { return index_; }
 
     void setIndex(int index) { index_ =  index; }
 
     EventLoop* ownerLoop() const { return loop_; }
+
+    void remove();
 
 private:
     EventLoop* loop_;
@@ -62,6 +64,7 @@ private:
     const int EVENT_CLOSE = EPOLLRDHUP;
 
     void update();
+
 };
 
 
