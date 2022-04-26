@@ -11,6 +11,7 @@
 #include <functional>
 #include <map>
 #include "TcpConnection.h"
+#include "EventLoopThreadPool.h"
 class TcpServer {
 public:
 
@@ -26,21 +27,17 @@ public:
 
     void setErrorCallBack(const TcpConnection::ErrorCallBack &callBack);
 
+    void setThreadNums(int size);
 
 private:
 
-
-//    void ReadHandel(const TcpConnection::ptr &);
-//
-//    void CloseHandel(const TcpConnection::ptr &);
-
-//    void WriteHandel(const TcpConnection::ptr &);
+    static IgnoreSigPipe initObj;
 
     static int s_id;
     std::map<int, TcpConnection::ptr> Clients;
     EventLoop *loop;
     Acceptor acceptor;
-
+    EventLoopThreadPool eventLoopThreadPool;
     TcpConnection::ConnectCallBack connectCallBack;
     TcpConnection::ReadCallBack readCallBack;
     TcpConnection::CloseCallBack closeCallBack;

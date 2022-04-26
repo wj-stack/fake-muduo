@@ -8,7 +8,7 @@
 #include "Channel.h"
 #include "EventLoop.h"
 #include "Buffer.h"
-
+#include "IgnoreSigPipe.h"
 class TcpConnection : std::enable_shared_from_this<TcpConnection> {
 public:
 
@@ -18,6 +18,8 @@ public:
     typedef std::function<void(const TcpConnection::ptr &)> CloseCallBack;
     typedef std::function<void(const TcpConnection::ptr &)> WriteCallBack; // 可写
     typedef std::function<void(const TcpConnection::ptr &)> ErrorCallBack;
+    typedef std::function<void(const TcpConnection::ptr &)> WriteCompleteCallBack;
+    typedef std::function<void(const TcpConnection::ptr &)> HighWriteCallBack;
 
     enum STATE {
         CONNECTING, CONNECTED, ERROR, CLOSE
@@ -39,6 +41,7 @@ public:
 
     void Send(const std::string& message);
 
+    bool isConnected() const { return state == CONNECTED; }
 
 public:
     void setConnectCallBack(const ConnectCallBack &connectCallBack);
@@ -51,12 +54,15 @@ public:
 
     void setErrorCallBack(const ErrorCallBack &);
 
+    void setWriteCompleteCallBack(const WriteCompleteCallBack &);
+
+    void setHighWriteCallBack(const HighWriteCallBack &);
+
     void WriteHandle(const TcpConnection::ptr& ptr);
 
     void ReadHandel(const TcpConnection::ptr &);
 
     void CloseHandel(const TcpConnection::ptr &);
-
 
 
 private:
@@ -73,10 +79,12 @@ private:
     CloseCallBack closeCallBack;
     WriteCallBack writeCallBack;
     ErrorCallBack errorCallBack;
-
-    void ConnectHandel(const ptr &);
+    WriteCompleteCallBack writeCompleteCallBack;
+    HighWriteCallBack highWriteCallBack;
 
     void ErrorHandel(const ptr &ptr);
+
+    void sendInLoop(const std::string& message);
 };
 
 

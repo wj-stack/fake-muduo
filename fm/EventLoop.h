@@ -34,7 +34,8 @@ private:
 
     void wakeUp() const;
     void handleRead() const; // 处理唤醒，防止一直唤醒
-
+    void removeInLoop(Channel *channel);
+    void updateInLoop(Channel *channel);
 };
 
 

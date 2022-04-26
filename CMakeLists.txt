@@ -19,7 +19,7 @@ add_executable(main main.cpp
         fm/TcpServer.cpp
         fm/TcpConnection.cpp
         fm/Buffer.cpp
-        )
+        fm/IgnoreSigPipe.cpp fm/IgnoreSigPipe.h fm/EventLoopThread.cpp fm/EventLoopThread.h fm/EventLoopThreadPool.cpp fm/EventLoopThreadPool.h)
 
 target_link_libraries(main PRIVATE spdlog::spdlog)
 

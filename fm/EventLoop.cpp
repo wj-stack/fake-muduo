@@ -10,6 +10,7 @@
 thread_local EventLoop *t_loopInThisThread = nullptr;
 
 EventLoop::EventLoop() : threadId_(Until::GetThreadId()), wakeFd_(createEventFd()), wakeChannel_(this, wakeFd_) {
+    spdlog::info("threadId_:{}  loop:{}", threadId_, (long)this);
     if (!t_loopInThisThread) {
         t_loopInThisThread = this;
         wakeChannel_.setReadCallBack(std::bind(&EventLoop::handleRead, this));
@@ -61,17 +62,16 @@ void EventLoop::loop() {
 }
 
 bool EventLoop::isInLoopThread() const {
+//    spdlog::info("cur thread: {} my thread:{}", Until::GetThreadId(), threadId_);
     return threadId_ == Until::GetThreadId();
 }
 
 void EventLoop::updateChannel(Channel *channel) {
-    assert(isInLoopThread());
-    assert(channel->ownerLoop() == this);
-    poller.updateChannel(channel);
+    runInLoop(std::bind(&EventLoop::updateInLoop, this, channel));
 }
 
 void EventLoop::removeChannel(Channel *channel) {
-    poller.removeChannel(channel);
+    runInLoop(std::bind(&EventLoop::removeInLoop, this, channel));
 }
 
 void EventLoop::quit() {
@@ -117,4 +117,14 @@ void EventLoop::handleRead() const {
     if (n != sizeof one) {
         spdlog::error("EventLoop::handleRead() reads {} bytes instead of 8", n);
     }
+}
+
+void EventLoop::updateInLoop(Channel* channel) {
+    assert(isInLoopThread());
+    assert(channel->ownerLoop() == this);
+    poller.updateChannel(channel);
+}
+
+void EventLoop::removeInLoop(Channel *channel) {
+    poller.removeChannel(channel);
 }

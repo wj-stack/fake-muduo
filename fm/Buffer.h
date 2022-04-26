@@ -33,6 +33,11 @@ public:
 
     void append(char *data, int n);
 
+    size_t getCapacity()
+    {
+        return buf.capacity();
+    }
+
     int getReadIndex() const {
         return readIndex;
     }
