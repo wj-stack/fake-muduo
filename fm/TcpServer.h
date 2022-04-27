@@ -19,6 +19,8 @@ public:
 
     void start();
 
+//    void stop();
+
     void setConnectCallBack(const TcpConnection::ConnectCallBack &callBack);
 
     void setReadCallBack(const TcpConnection::ReadCallBack &callBack);

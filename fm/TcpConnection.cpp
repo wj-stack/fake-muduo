@@ -64,9 +64,9 @@ void TcpConnection::CloseHandel(const TcpConnection::ptr & ptr) {
     ptr->setState(TcpConnection::CLOSE);
     ptr->getChannel()->disableAll();
     ptr->getChannel()->remove();
+    ::close(ptr->getFd());
     if (connectCallBack)connectCallBack(ptr); // 处理断开连接
     if (closeCallBack)closeCallBack(ptr);
-    ::close(ptr->getFd());
     SPDLOG_INFO("close fd: {}",ptr->getFd());
 
 }
@@ -76,10 +76,9 @@ void TcpConnection::ErrorHandel(const TcpConnection::ptr & ptr) {
     ptr->setState(TcpConnection::ERROR);
     ptr->getChannel()->disableAll();
     ptr->getChannel()->remove();
+    ::close(ptr->getFd());
     if (connectCallBack)connectCallBack(ptr); // 处理断开连接
     if (errorCallBack)errorCallBack(ptr);
-    SPDLOG_INFO("TcpConnection::ErrorHandel fd: {}",ptr->getFd());
-    ::close(ptr->getFd());
 }
 
 
@@ -145,12 +144,9 @@ void TcpConnection::shutdownWriteInLoop() {
     {
         Socket::shutdownWrite(channel.fd());
     }
-    SPDLOG_INFO("closeCallBack! in shutdownWriteInLoop fd:{} ",fd);
     channel.disableAll();
     ::close(fd);
+    if (connectCallBack)connectCallBack(shared_from_this());
     if (closeCallBack)closeCallBack(shared_from_this());
-
-//    ::shutdown(fd,SHUT_RDWR);
-
 
 }

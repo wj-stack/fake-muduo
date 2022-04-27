@@ -16,9 +16,7 @@ TcpServer::TcpServer(EventLoop *l, InetAddress *inetAddress) : loop(l), acceptor
 }
 
 void TcpServer::start() {
-
     acceptor.setNewConnectCallBack(std::bind(&TcpServer::handelAccept, this, std::placeholders::_1, std::placeholders::_2));
-
     acceptor.listen();
 }
 

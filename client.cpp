@@ -22,14 +22,19 @@ void func(const TcpConnection::ptr &conn)
     }
 }
 
-void newConnect(const TcpConnection::ptr &conn) {
+std::vector<std::shared_ptr<TcpClient>> tcpClient(100);
+void newConnect(const TcpConnection::ptr &conn,int id) {
     if (conn->isConnected()) {
         a++;
-        spdlog::info("new connect fd:{}", conn->getFd());
+//        spdlog::info("new connect fd:{}  id:{}", conn->getFd() , id);
         conn->shutdown();
+
     }else{
-        a--;
-        spdlog::info("dis connect fd:{}", conn->getFd());
+//        spdlog::info("dis connect fd:{}", conn->getFd());
+//
+//        spdlog::info("tcpClient[id]->isConnected() : {}", tcpClient[id]->isConnected());
+
+        tcpClient[id]->connect();
 
     }
 }
@@ -45,13 +50,12 @@ void newRead(const TcpConnection::ptr &conn,Buffer& buffer , int n) {
 }
 
 void Close(const TcpConnection::ptr &conn) {
-    spdlog::info("Close fd: {}" , conn->getFd());
-    ::close(conn->getFd());
-
+    a--;
+//    spdlog::info("Close fd: {}" , conn->getFd());
 }
 
 void Error(const TcpConnection::ptr &conn) {
-    spdlog::info("Error");
+//    spdlog::info("Error");
 }
 
 InetAddress inetAddress("127.0.0.1",9991);
@@ -59,24 +63,23 @@ EventLoop* loop;
 
 [[noreturn]] void func()
 {
-    std::vector<std::shared_ptr<TcpClient>> tcpClient(100);
     for (int i = 0; i < 100; ++i) {
         tcpClient[i] = std::make_shared<TcpClient>(loop, &inetAddress);
         tcpClient[i]->setReadCallBack(newRead);
-        tcpClient[i]->setConnectCallBack(newConnect);
+        tcpClient[i]->setConnectCallBack(std::bind(newConnect,std::placeholders::_1,i));
         tcpClient[i]->setCloseCallBack(Close);
         tcpClient[i]->connect();
-        spdlog::info("tcpClient[i]->connect()");
+//        spdlog::info("tcpClient[i]->connect() {}",i);
     }
-    sleep(5);
     while (1)
     {
-        for (int i = 0; i < 100; ++i) {
-            if (!tcpClient[i]->isConnected()) {
-                tcpClient[i]->connect();
-            }
-        }
-        sleep(5);
+//        for (int i = 0; i < 100; ++i) {
+//            if (!tcpClient[i]->isConnected()) {
+//                tcpClient[i]->connect();
+//            }
+//        }
+        spdlog::info("a: {}", a);
+        sleep(1);
     }
 }
 
