@@ -33,7 +33,7 @@ public:
 
     void append(char *data, int n);
 
-    size_t getCapacity()
+    size_t getCapacity() const
     {
         return buf.capacity();
     }

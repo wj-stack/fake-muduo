@@ -47,3 +47,4 @@ InetAddress::InetAddress(const std::string &ip, uint16_t portArg, bool ipv6)    
 
 const sockaddr * InetAddress::getSocketAddress() const { return Socket::sockaddr_cast(&addrv6); }
 
+void InetAddress::setSockAddrInet6(const sockaddr_in6 &addr6)  { addrv6 = addr6; }

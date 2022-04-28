@@ -25,7 +25,7 @@ public:
 
     std::string toIp() const;
 
-    void setSockAddrInet6(const struct sockaddr_in6 &addr6) { addrv6 = addr6; }
+    void setSockAddrInet6(const struct sockaddr_in6 &addr6);
 
     uint16_t toPort() const { return addr.sin_port; }
 

@@ -29,7 +29,7 @@ public:
 
     int getState() const { return state; }
 
-    void setState(STATE s) { state = s; }
+    void setState(STATE s);
 
     Channel *getChannel() { return &channel; }
 
@@ -37,7 +37,7 @@ public:
 
     int getIndex() const { return id; }
 
-    Buffer &getInputBuffer() { return inputBuffer; }
+    Buffer &getInputBuffer();
 
     void Send(const std::string& message);
 

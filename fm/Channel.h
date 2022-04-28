@@ -41,7 +41,7 @@ public:
 
     int getIndex() const { return index_; }
 
-    void setIndex(int index) { index_ =  index; }
+    void setIndex(int index);
 
     EventLoop* ownerLoop() const { return loop_; }
 

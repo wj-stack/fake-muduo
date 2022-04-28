@@ -68,3 +68,5 @@ int Channel::fd() const {
 void Channel::remove() {
     loop_->removeChannel(this);
 }
+
+void Channel::setIndex(int index)  { index_ =  index; }

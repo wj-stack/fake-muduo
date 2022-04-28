@@ -150,3 +150,7 @@ void TcpConnection::shutdownWriteInLoop() {
     if (closeCallBack)closeCallBack(shared_from_this());
 
 }
+
+void TcpConnection::setState(TcpConnection::STATE s)   { state = s; }
+
+Buffer &TcpConnection::getInputBuffer(){ return inputBuffer; }

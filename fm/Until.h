@@ -27,6 +27,7 @@ public:
         howlong.it_value.tv_sec = delay / 1000;
         howlong.it_value.tv_nsec = (delay % 1000) * 1000 * 1000;
         ::timerfd_settime(timerfd, 0, &howlong, nullptr);
+
     }
     static uint64_t Now()         {
         return std::chrono::time_point_cast<std::chrono::microseconds>(std::chrono::system_clock::now()).time_since_epoch().count();
