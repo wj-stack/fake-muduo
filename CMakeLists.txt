@@ -15,6 +15,8 @@ set(ANDROID_PLATFORM_LEVEL 21)
 set(FETCHCONTENT_UPDATES_DISCONNECTED_Catch2 ON) # 防止一直加载spdlog
 
 Include(FetchContent)
+
+# spdlog
 FetchContent_Declare(
         spdlog
         GIT_REPOSITORY https://github.com/gabime/spdlog.git
@@ -27,6 +29,22 @@ if(NOT TARGET spdlog)
     find_package(spdlog REQUIRED)
 endif()
 
+
+## jsoncpp
+#FetchContent_Declare(
+#        jsoncpp
+#        GIT_REPOSITORY https://github.com/open-source-parsers/jsoncpp.git
+#        GIT_TAG 1.9.3
+#)
+#FetchContent_MakeAvailable(jsoncpp)
+#if(NOT TARGET jsoncpp)
+#    # Stand-alone build
+#    find_package(jsoncpp REQUIRED)
+#endif()
+include_directories(jsoncpp)
+add_subdirectory(jsoncpp)
+
+#message(STATUE "BUILD_STATIC_LIBS:" ${BUILD_STATIC_LIBS})
 
 add_executable(main main.cpp
         fm/EventLoop.cpp
@@ -58,5 +76,13 @@ add_executable(main main.cpp
         fm/HttpServer.h
         )
 
-target_link_libraries(main PRIVATE spdlog::spdlog)
+file(GLOB_RECURSE threadPool ThreadPool/*.cpp)
+file(GLOB_RECURSE memoryTools MemoryTools/*.cpp)
+file(GLOB_RECURSE lexicalCast LexicalCast/*.cpp)
+
+add_library(threadPool STATIC ${threadPool})
+add_library(memoryTools STATIC ${memoryTools})
+add_library(lexicalCast STATIC ${lexicalCast})
+
+target_link_libraries(main PRIVATE spdlog::spdlog jsoncpp_object threadPool memoryTools lexicalCast)
 

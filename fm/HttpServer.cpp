@@ -76,25 +76,33 @@ std::map<std::string, std::string> &RequestHeader::getParam()    {
     std::stringstream ss;
     unsigned long pos = 0;
     std::string p;
+//    spdlog::info("path_: {}", path_);
+//    spdlog::info("func_: {}", func_);
+
     if (func_ == "GET")
     {
         p = path_;
-        pos = p.find("/?");
+        pos = p.find('?');
         if (pos != std::string::npos) {
-            std::string s = p.substr(pos + 2, p.length() - pos - 2);
+            std::string s = p.substr(pos + 1, p.length() - pos - 1);
+//            spdlog::info("get s:{}", s);
             ss << s;
         }
     }else{
         p = data_;
         ss << p;
     }
+//    spdlog::info("S:{}", ss.str());
 
     std::string param;
     while (getline(ss, param, '&')) {
+//        spdlog::info("param: {}", param);
         if(!param.empty())
         {
             auto pos2 = param.find('=');
-
+//            spdlog::info("param.substr(0, pos2): {}", param.substr(0, pos2));
+//            spdlog::info("param.substr(pos2 + 1, param.length() - pos2 - 1) : {}",
+//                         param.substr(pos2 + 1, param.length() - pos2 - 1));
             param_[param.substr(0, pos2)] = param.substr(pos2 + 1, param.length() - pos2 - 1);
 //                spdlog::info(param.substr(0, pos2));
 //                spdlog::info(param.substr(pos2 + 1, param.length() - pos2 - 1));
@@ -102,6 +110,17 @@ std::map<std::string, std::string> &RequestHeader::getParam()    {
     }
 
     return param_;
+}
+
+std::string RequestHeader::getParam(const std::string &key, const std::string & d) {
+    auto& mp = getParam();
+    spdlog::info("key: {} default :{}  value:{}", key, d, mp[key]);
+    if (mp.find(key) != mp.end() && !mp[key].empty()) {
+
+        return mp[key];
+    }
+    spdlog::info("ret default: {}", d);
+    return d;
 }
 
 ResponseHeader::ResponseHeader()    {
@@ -170,7 +189,31 @@ void HttpServer::readCallBack(const TcpConnection::ptr &conn, Buffer &buffer, in
     requestHeader.parse(request);
 
     if (httpCallBack)httpCallBack(requestHeader, responseHeader);
+    spdlog::info("func: {}", requestHeader.getFunc());
+    if(requestHeader.getFunc() == "GET")
+    {
+        std::string path = requestHeader.getPath();
+        auto pos = path.find('?');
+        if (pos != std::string::npos) {
+            // 有参数
+            path= path.substr(0, pos);
+        }
+        spdlog::info("前缀: {}" , path);
+        if(GetCallBack.find(path) != GetCallBack.end())
+        {
+            GetCallBack[path](requestHeader, responseHeader);
+        }
 
+    }else if (requestHeader.getFunc() == "POST")
+    {
+        std::string path = requestHeader.getPath();
+        spdlog::info("前缀: {}" , path);
+        if(PostCallBack.find(path) != PostCallBack.end())
+        {
+            PostCallBack[path](requestHeader, responseHeader);
+        }
+
+    }
     conn->Send(responseHeader.toString());
     buffer.retrieve(len);
 }
@@ -198,4 +241,12 @@ void HttpServer::start()     {
 
 void HttpServer::setHttpCallBack(const HttpServer::HttpCallBack &callBack)    {
     httpCallBack = callBack;
+}
+
+void HttpServer::Get(const std::string & s, const HttpServer::HttpCallBack & callBack) {
+    GetCallBack[s] = callBack;
+}
+
+void HttpServer::Post(const std::string &s, const HttpServer::HttpCallBack &callBack) {
+    PostCallBack[s] = callBack;
 }

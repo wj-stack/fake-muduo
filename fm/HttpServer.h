@@ -30,6 +30,9 @@ public:
 
     std::map<std::string,std::string>& getParam();
 
+    std::string getParam(const std::string& key,const std::string& defaultValue);
+
+
 private:
     std::map<std::string,std::string> header_;
     std::map<std::string,std::string> param_;
@@ -88,11 +91,17 @@ public:
 
     void setHttpCallBack(const HttpCallBack& callBack);
 
+    void Get(const std::string& ,const HttpCallBack&);
+
+    void Post(const std::string& ,const HttpCallBack&);
+
 private:
     EventLoop* eventLoop;
     InetAddress *inetAddress;
     TcpServer tcpServer;
     HttpCallBack httpCallBack;
+    std::map<std::string,HttpCallBack> GetCallBack;
+    std::map<std::string,HttpCallBack> PostCallBack;
 };
 
 
