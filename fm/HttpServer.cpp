@@ -124,7 +124,7 @@ std::string RequestHeader::getParam(const std::string &key, const std::string & 
 }
 
 ResponseHeader::ResponseHeader()    {
-    header_["Content-Type"] = "text/html:charset=UTF-8";
+    header_["Content-Type"] = "text/html";
     protocol_ = "HTTP/1.1";
     state_ = "200";
     stateName_ = "ok";
@@ -189,7 +189,7 @@ void HttpServer::readCallBack(const TcpConnection::ptr &conn, Buffer &buffer, in
     requestHeader.parse(request);
 
     if (httpCallBack)httpCallBack(requestHeader, responseHeader);
-    spdlog::info("func: {}", requestHeader.getFunc());
+
     if(requestHeader.getFunc() == "GET")
     {
         std::string path = requestHeader.getPath();
@@ -198,7 +198,6 @@ void HttpServer::readCallBack(const TcpConnection::ptr &conn, Buffer &buffer, in
             // 有参数
             path= path.substr(0, pos);
         }
-        spdlog::info("前缀: {}" , path);
         if(GetCallBack.find(path) != GetCallBack.end())
         {
             GetCallBack[path](requestHeader, responseHeader);
@@ -207,7 +206,6 @@ void HttpServer::readCallBack(const TcpConnection::ptr &conn, Buffer &buffer, in
     }else if (requestHeader.getFunc() == "POST")
     {
         std::string path = requestHeader.getPath();
-        spdlog::info("前缀: {}" , path);
         if(PostCallBack.find(path) != PostCallBack.end())
         {
             PostCallBack[path](requestHeader, responseHeader);

@@ -25,8 +25,10 @@ bool Connector::connect() {
         fd = 0;
     }
     fd = Socket::createSocket();
-//    spdlog::info(" Connector::connect fd:{}", fd);
+    spdlog::info(" Connector::connect createSocket fd:{}", fd);
     int ret = ::connect(fd, inetAddress->getSocketAddress(), static_cast<socklen_t>(sizeof(struct sockaddr_in6)));
+
+//    spdlog::info("connect ret:{}", ret);
     int savedErrno = (ret == 0) ? 0 : errno;
     switch (savedErrno)
     {
