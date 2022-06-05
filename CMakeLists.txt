@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.22)
+cmake_minimum_required(VERSION 3.11)
 project(fm)
 
 set(CMAKE_CXX_STANDARD 11)
@@ -29,24 +29,14 @@ if(NOT TARGET spdlog)
     find_package(spdlog REQUIRED)
 endif()
 
+message(STATUE "loading:spdlog")
 
-## jsoncpp
-#FetchContent_Declare(
-#        jsoncpp
-#        GIT_REPOSITORY https://github.com/open-source-parsers/jsoncpp.git
-#        GIT_TAG 1.9.3
-#)
-#FetchContent_MakeAvailable(jsoncpp)
-#if(NOT TARGET jsoncpp)
-#    # Stand-alone build
-#    find_package(jsoncpp REQUIRED)
-#endif()
+
+
 include_directories(jsoncpp)
 add_subdirectory(jsoncpp)
 
-#message(STATUE "BUILD_STATIC_LIBS:" ${BUILD_STATIC_LIBS})
-
-add_executable(main main.cpp
+set(SOCK_CPP
         fm/EventLoop.cpp
         fm/EventLoop.h
         fm/noncopyable.h
@@ -74,7 +64,10 @@ add_executable(main main.cpp
         fm/TcpClient.h
         fm/HttpServer.cpp
         fm/HttpServer.h
-        )
+        fm/unpack.cpp fm/unpack.h)
+
+add_executable(main main.cpp
+         ${SOCK_CPP})
 
 file(GLOB_RECURSE threadPool ThreadPool/*.cpp)
 file(GLOB_RECURSE memoryTools MemoryTools/*.cpp)
@@ -85,4 +78,10 @@ add_library(memoryTools STATIC ${memoryTools})
 add_library(lexicalCast STATIC ${lexicalCast})
 
 target_link_libraries(main PRIVATE spdlog::spdlog jsoncpp_object threadPool memoryTools lexicalCast)
+
+
+add_executable(test_client_ntohl test_client_ntohl.cpp
+        ${SOCK_CPP})
+
+target_link_libraries(test_client_ntohl PRIVATE spdlog::spdlog jsoncpp_object threadPool memoryTools lexicalCast)
 
